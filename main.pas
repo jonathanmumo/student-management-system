@@ -8,10 +8,12 @@ var
     choice: integer;
     studentFile, tempFile: Text;
     regNo, studentName, course: string;
-    searchReg: string;
-    line: string;
-    found: boolean;
-
+searchReg: string;
+line: string;
+grade, remark: string;
+found: boolean;
+catMark, assignmentMark, examMark, total: integer;
+gradeFile: Text;
 begin
     repeat
 
@@ -219,8 +221,103 @@ begin
         writeln('Student not found.');
 end;
             6:
-                writeln('Calculate Grades - Coming Soon');
+begin
+    found := False;
 
+    writeln('========== RECORD STUDENT MARKS ==========');
+    writeln;
+    write('Enter Registration Number: ');
+    readln(searchReg);
+
+    Assign(studentFile,'students.txt');
+    Reset(studentFile);
+
+    while not EOF(studentFile) do
+    begin
+        readln(studentFile,line);
+
+        if Pos(searchReg,line)=1 then
+        begin
+            found := True;
+            Break;
+        end;
+    end;
+
+    Close(studentFile);
+
+    if not found then
+    begin
+        writeln;
+        writeln('Student not found!');
+    end
+    else
+    begin
+        writeln;
+        writeln('Student Found');
+        writeln(line);
+        writeln;
+
+        write('CAT Marks (30): ');
+        readln(catMark);
+
+        write('Assignment Marks (10): ');
+        readln(assignmentMark);
+
+        write('Exam Marks (60): ');
+        readln(examMark);
+
+        total := catMark + assignmentMark + examMark;
+
+        if total >= 70 then
+        begin
+            grade := 'A';
+            remark := 'Excellent';
+        end
+        else if total >= 60 then
+        begin
+            grade := 'B';
+            remark := 'Very Good';
+        end
+        else if total >= 50 then
+        begin
+            grade := 'C';
+            remark := 'Good';
+        end
+        else if total >= 40 then
+        begin
+            grade := 'D';
+            remark := 'Pass';
+        end
+        else
+        begin
+            grade := 'F';
+            remark := 'Fail';
+        end;
+
+        Assign(gradeFile,'grades.txt');
+        Append(gradeFile);
+
+        writeln(
+            gradeFile,
+            searchReg,'|',
+            catMark,'|',
+            assignmentMark,'|',
+            examMark,'|',
+            total,'|',
+            grade,'|',
+            remark
+        );
+
+        Close(gradeFile);
+
+        writeln;
+        writeln('Total Marks : ',total);
+        writeln('Grade       : ',grade);
+        writeln('Remark      : ',remark);
+        writeln;
+        writeln('Grade recorded successfully!');
+    end;
+end;
             7:
                 writeln('Generate Report - Coming Soon');
 

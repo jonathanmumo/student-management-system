@@ -40,24 +40,53 @@ writeln('9. Exit');
                 writeln('========== ADD STUDENT ==========');
 
                 writeln('Registration Number:');
-                readln(regNo);
+readln(regNo);
 
-                writeln('Student Name:');
-                readln(studentName);
+found := False;
 
-                writeln('Course:');
-                readln(course);
+Assign(studentFile,'students.txt');
+Reset(studentFile);
 
-                Assign(studentFile, 'students.txt');
-                Append(studentFile);
+while not EOF(studentFile) do
+begin
+    readln(studentFile,line);
 
-                writeln(studentFile, regNo, '|', studentName, '|', course);
+    if Pos(regNo,line)=1 then
+    begin
+        found := True;
+        Break;
+    end;
+end;
 
-                Close(studentFile);
+Close(studentFile);
 
-                writeln;
-                writeln('Student saved successfully!');
-            end;
+if found then
+begin
+    writeln;
+    writeln('Registration number already exists!');
+end
+else
+begin
+    writeln('Student Name:');
+    readln(studentName);
+
+    writeln('Course:');
+    readln(course);
+
+    Assign(studentFile,'students.txt');
+    Append(studentFile);
+
+    writeln(studentFile,
+        regNo,'|',
+        studentName,'|',
+        course);
+
+    Close(studentFile);
+
+    writeln;
+    writeln('Student saved successfully!');
+end;
+         end;   
 
             {================ VIEW STUDENTS ================}
             2:

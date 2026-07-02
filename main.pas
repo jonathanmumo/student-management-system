@@ -283,14 +283,29 @@ begin
         writeln(line);
         writeln;
 
-        write('CAT Marks (30): ');
-        readln(catMark);
+        repeat
+    write('CAT Marks (0-30): ');
+    readln(catMark);
 
-        write('Assignment Marks (10): ');
-        readln(assignmentMark);
+    if (catMark < 0) or (catMark > 30) then
+        writeln('Invalid! CAT marks must be between 0 and 30.');
+until (catMark >= 0) and (catMark <= 30);
 
-        write('Exam Marks (60): ');
-        readln(examMark);
+        repeat
+    write('Assignment Marks (0-10): ');
+    readln(assignmentMark);
+
+    if (assignmentMark < 0) or (assignmentMark > 10) then
+        writeln('Invalid! Assignment marks must be between 0 and 10.');
+until (assignmentMark >= 0) and (assignmentMark <= 10);
+
+       repeat
+    write('Exam Marks (0-60): ');
+    readln(examMark);
+
+    if (examMark < 0) or (examMark > 60) then
+        writeln('Invalid! Exam marks must be between 0 and 60.');
+until (examMark >= 0) and (examMark <= 60);
 
         total := catMark + assignmentMark + examMark;
 

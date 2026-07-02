@@ -5,30 +5,27 @@ uses
 
 var
     
+    
     choice: integer;
-    studentFile, tempFile: Text;
+    studentFile, tempFile, gradeFile: Text;
     regNo, studentName, course: string;
-searchReg: string;
-line: string;
-grade, remark: string;
-found: boolean;
-catMark, assignmentMark, examMark, total: integer;
-gradeFile: Text;
+    searchReg: string;
+    line: string;
+    grade, remark: string;
+    found: boolean;
+    catMark, assignmentMark, examMark, total: integer;
 begin
     repeat
 
-        writeln('==============================================================');
-        writeln('                STUDENT MANAGEMENT SYSTEM');
-        writeln('==============================================================');
-        writeln;
         writeln('1. Add Student');
-        writeln('2. View Students');
-        writeln('3. Search Student');
-        writeln('4. Update Student');
-        writeln('5. Delete Student');
-        writeln('6. Calculate Grades');
-        writeln('7. Generate Report');
-        writeln('8. Exit');
+writeln('2. View Students');
+writeln('3. Search Student');
+writeln('4. Update Student');
+writeln('5. Delete Student');
+writeln('6. Record Student Marks');
+writeln('7. View Grade Report');
+writeln('8. Student Transcript');
+writeln('9. Exit');
         writeln;
 
         writeln('Enter your choice:');
@@ -368,19 +365,110 @@ begin
 end;
 
             8:
-                writeln('Thank you for using the Student Management System.');
+begin
+    found := False;
 
+    writeln('========== STUDENT TRANSCRIPT ==========');
+    writeln;
+    write('Enter Registration Number: ');
+    readln(searchReg);
+
+    Assign(studentFile,'students.txt');
+    Reset(studentFile);
+
+    while not EOF(studentFile) do
+    begin
+        readln(studentFile,line);
+
+        if Pos(searchReg,line)=1 then
+        begin
+            found := True;
+
+            regNo := Copy(line,1,Pos('|',line)-1);
+            Delete(line,1,Pos('|',line));
+
+            studentName := Copy(line,1,Pos('|',line)-1);
+            Delete(line,1,Pos('|',line));
+
+            course := line;
+
+            Break;
+        end;
+    end;
+
+    Close(studentFile);
+
+    if not found then
+    begin
+        writeln;
+        writeln('Student not found!');
+    end
+    else
+    begin
+        Assign(gradeFile,'grades.txt');
+        Reset(gradeFile);
+
+        while not EOF(gradeFile) do
+        begin
+            readln(gradeFile,line);
+
+            if Pos(searchReg,line)=1 then
+            begin
+                Delete(line,1,Pos('|',line));
+
+                catMark := StrToInt(Copy(line,1,Pos('|',line)-1));
+                Delete(line,1,Pos('|',line));
+
+                assignmentMark := StrToInt(Copy(line,1,Pos('|',line)-1));
+                Delete(line,1,Pos('|',line));
+
+                examMark := StrToInt(Copy(line,1,Pos('|',line)-1));
+                Delete(line,1,Pos('|',line));
+
+                total := StrToInt(Copy(line,1,Pos('|',line)-1));
+                Delete(line,1,Pos('|',line));
+
+                grade := Copy(line,1,Pos('|',line)-1);
+                Delete(line,1,Pos('|',line));
+
+                remark := line;
+
+                writeln;
+                writeln('=========================================');
+                writeln('          STUDENT TRANSCRIPT');
+                writeln('=========================================');
+                writeln('Registration No : ', regNo);
+                writeln('Student Name    : ', studentName);
+                writeln('Course          : ', course);
+                writeln;
+                writeln('CAT Marks       : ', catMark);
+                writeln('Assignment      : ', assignmentMark);
+                writeln('Exam Marks      : ', examMark);
+                writeln('Total Marks     : ', total);
+                writeln('Grade           : ', grade);
+                writeln('Remark          : ', remark);
+
+                Break;
+            end;
+        end;
+
+        Close(gradeFile);
+    end;
+end;
+
+9:
+    writeln('Thank you for using the Student Management System.');
         else
             writeln('Invalid choice!');
         end;
 
-        if choice <> 8 then
+        if choice <> 9 then
         begin
             writeln;
             writeln('Press ENTER to continue...');
             readln;
         end;
 
-    until choice = 8;
+    until choice = 9;
 
 end.

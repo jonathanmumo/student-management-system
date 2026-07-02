@@ -4,9 +4,13 @@ uses
     strutils;
 
 var
+    
     choice: integer;
-    studentFile: Text;
-    regNo, studentName, course, line: string;
+    studentFile, tempFile: Text;
+    regNo, studentName, course: string;
+    searchReg: string;
+    line: string;
+    found: boolean;
 
 begin
     repeat
@@ -86,10 +90,97 @@ begin
 
             {================ PLACEHOLDERS ================}
             3:
-                writeln('Search Student - Coming Soon');
+begin
+    found := False;
+
+    writeln('===== SEARCH STUDENT =====');
+    writeln;
+    write('Enter Registration Number: ');
+    readln(regNo);
+
+    Assign(studentFile, 'students.txt');
+    Reset(studentFile);
+
+    while not EOF(studentFile) do
+    begin
+        readln(studentFile, line);
+
+        if Pos(regNo, line) = 1 then
+        begin
+            writeln;
+            writeln('Student Found');
+            writeln('---------------------------');
+            writeln(line);
+            found := True;
+            Break;
+        end;
+    end;
+
+    Close(studentFile);
+
+    if not found then
+    begin
+        writeln;
+        writeln('Student not found.');
+    end;
+end;
 
             4:
-                writeln('Update Student - Coming Soon');
+begin
+    found := False;
+
+    writeln('===== UPDATE STUDENT =====');
+    write('Enter Registration Number: ');
+    readln(searchReg);
+
+    Assign(studentFile,'students.txt');
+    Reset(studentFile);
+
+    Assign(tempFile,'temp.txt');
+    Rewrite(tempFile);
+
+    while not EOF(studentFile) do
+    begin
+        readln(studentFile,line);
+
+        if Pos(searchReg,line)=1 then
+        begin
+            found := True;
+
+            writeln;
+            writeln('Student Found');
+            writeln(line);
+            writeln;
+
+            write('New Registration Number: ');
+            readln(regNo);
+
+            write('New Name: ');
+            readln(studentName);
+
+            write('New Course: ');
+            readln(course);
+
+            writeln(tempFile,
+                regNo,'|',
+                studentName,'|',
+                course);
+        end
+        else
+            writeln(tempFile,line);
+    end;
+
+    Close(studentFile);
+    Close(tempFile);
+
+    Erase(studentFile);
+    Rename(tempFile,'students.txt');
+
+    if found then
+        writeln('Student updated successfully!')
+    else
+        writeln('Student not found.');
+end;
 
             5:
                 writeln('Delete Student - Coming Soon');

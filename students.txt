@@ -1,4 +1,3 @@
-ccs/00037/023|The Promised|Medicine
 ccs/00043/023|peter vuzi|computer science
 ccs/089/023|john somba|computer science
 ccs/098/021|bernard vundi|computer science

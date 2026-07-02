@@ -182,9 +182,42 @@ begin
         writeln('Student not found.');
 end;
 
-            5:
-                writeln('Delete Student - Coming Soon');
+           5:
+begin
+    found := False;
 
+    writeln('===== DELETE STUDENT =====');
+    write('Enter Registration Number: ');
+    readln(searchReg);
+
+    Assign(studentFile, 'students.txt');
+    Reset(studentFile);
+
+    Assign(tempFile, 'temp.txt');
+    Rewrite(tempFile);
+
+    while not EOF(studentFile) do
+    begin
+        readln(studentFile, line);
+
+        if Pos(searchReg, line) = 1 then
+        begin
+            found := True;
+            writeln('Student deleted successfully!');
+        end
+        else
+            writeln(tempFile, line);
+    end;
+
+    Close(studentFile);
+    Close(tempFile);
+
+    Erase(studentFile);
+    Rename(tempFile, 'students.txt');
+
+    if not found then
+        writeln('Student not found.');
+end;
             6:
                 writeln('Calculate Grades - Coming Soon');
 

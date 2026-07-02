@@ -1,7 +1,7 @@
 program StudentManagementSystem;
 
 uses
-    strutils;
+    SysUtils, StrUtils;
 
 var
     
@@ -318,8 +318,54 @@ begin
         writeln('Grade recorded successfully!');
     end;
 end;
-            7:
-                writeln('Generate Report - Coming Soon');
+           7:
+begin
+    Assign(gradeFile, 'grades.txt');
+    Reset(gradeFile);
+
+    writeln('================================================================================');
+    writeln('                           STUDENT GRADE REPORT');
+    writeln('================================================================================');
+    writeln('Reg No          CAT  ASSIGN  EXAM  TOTAL  GRADE   REMARK');
+    writeln('--------------------------------------------------------------------------------');
+
+    while not EOF(gradeFile) do
+    begin
+        readln(gradeFile, line);
+
+        regNo := Copy(line, 1, Pos('|', line) - 1);
+        Delete(line, 1, Pos('|', line));
+
+        catMark := StrToInt(Copy(line, 1, Pos('|', line) - 1));
+        Delete(line, 1, Pos('|', line));
+
+        assignmentMark := StrToInt(Copy(line, 1, Pos('|', line) - 1));
+        Delete(line, 1, Pos('|', line));
+
+        examMark := StrToInt(Copy(line, 1, Pos('|', line) - 1));
+        Delete(line, 1, Pos('|', line));
+
+        total := StrToInt(Copy(line, 1, Pos('|', line) - 1));
+        Delete(line, 1, Pos('|', line));
+
+        grade := Copy(line, 1, Pos('|', line) - 1);
+        Delete(line, 1, Pos('|', line));
+
+        remark := line;
+
+        writeln(
+            regNo:15, ' ',
+            catMark:4, ' ',
+            assignmentMark:7, ' ',
+            examMark:5, ' ',
+            total:6, ' ',
+            grade:6, ' ',
+            remark
+        );
+    end;
+
+    Close(gradeFile);
+end;
 
             8:
                 writeln('Thank you for using the Student Management System.');

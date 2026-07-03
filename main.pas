@@ -3,9 +3,19 @@ program StudentManagementSystem;
 uses
     SysUtils, StrUtils;
 
+const
+    MAX = 100;
+
 var
-    
-    
+    bestReg: string;
+    bestGrade: string;
+    bestRemark: string;
+    bestTotal: integer;
+
+    confirm: char;
+    searchChoice: integer;
+    searchName: string;
+
     choice: integer;
     studentFile, tempFile, gradeFile: Text;
     regNo, studentName, course: string;
@@ -14,24 +24,107 @@ var
     grade, remark: string;
     found: boolean;
     catMark, assignmentMark, examMark, total: integer;
-highest, lowest: integer;
-sum: integer;
-count: integer;
-average: real;
 
-gradeA, gradeB, gradeC, gradeD, gradeF: integer;
+    highest, lowest: integer;
+    sum: integer;
+    count: integer;
+    average: real;
+
+    gradeA, gradeB, gradeC, gradeD, gradeF: integer;
+
+    studentCount, gradeCount: integer;
+    highestScore, totalScore: integer;
+    averageScore: real;
+
+    rankReg: array[1..MAX] of string;
+    rankName: array[1..MAX] of string;
+    rankGrade: array[1..MAX] of string;
+    rankTotal: array[1..MAX] of integer;
+
+    i, j, n: integer;
+
+    tempReg: string;
+    tempName: string;
+    tempGrade: string;
+    tempTotal: integer;
+
 function ValidRegNo(reg: string): boolean;
 begin
     ValidRegNo :=
-        (Length(reg) = 13) and
+        (Length(reg) = 12) and
         (Copy(reg,1,4) = 'CCS/') and
-        (reg[10] = '/') and
-        (Pos(' ', reg) = 0);
+        (reg[9] = '/') and
+        (reg[5] in ['0'..'9']) and
+        (reg[6] in ['0'..'9']) and
+        (reg[7] in ['0'..'9']) and
+        (reg[8] in ['0'..'9']) and
+        (reg[10] in ['0'..'9']) and
+        (reg[11] in ['0'..'9']) and
+        (reg[12] in ['0'..'9']);
 end;
 begin
-    repeat
+repeat
+studentCount := 0;
 
-        writeln('1. Add Student');
+Assign(studentFile,'students.txt');
+Reset(studentFile);
+
+while not EOF(studentFile) do
+begin
+    readln(studentFile,line);
+    Inc(studentCount);
+end;
+
+Close(studentFile);
+gradeCount := 0;
+highestScore := 0;
+totalScore := 0;
+
+Assign(gradeFile,'grades.txt');
+Reset(gradeFile);
+
+while not EOF(gradeFile) do
+begin
+    readln(gradeFile,line);
+
+    { Skip Reg No }
+    Delete(line,1,Pos('|',line));
+
+    { Skip CAT }
+    Delete(line,1,Pos('|',line));
+
+    { Skip Assignment }
+    Delete(line,1,Pos('|',line));
+
+    { Skip Exam }
+    Delete(line,1,Pos('|',line));
+
+    { Read Total }
+    total := StrToInt(Copy(line,1,Pos('|',line)-1));
+
+    Inc(gradeCount);
+    totalScore := totalScore + total;
+
+    if total > highestScore then
+        highestScore := total;
+end;
+
+Close(gradeFile);
+
+if gradeCount > 0 then
+    averageScore := totalScore / gradeCount
+else
+    averageScore := 0;
+writeln('=========================================');
+writeln('      STUDENT MANAGEMENT SYSTEM');
+writeln('=========================================');
+writeln('Students Registered : ', studentCount);
+writeln('Grades Recorded     : ', gradeCount);
+writeln('Highest Score       : ', highestScore);
+writeln('Average Score       : ', averageScore:0:2);
+writeln('=========================================');
+writeln;
+       writeln('1. Add Student');
 writeln('2. View Students');
 writeln('3. Search Student');
 writeln('4. Update Student');
@@ -40,7 +133,9 @@ writeln('6. Record Student Marks');
 writeln('7. View Grade Report');
 writeln('8. Student Transcript');
 writeln('9. Student Statistics');
-writeln('10. Exit');
+writeln('10. Best Student');
+writeln('11. Class ranking');
+writeln('12. Exit');
         writeln;
 
         writeln('Enter your choice:');
@@ -156,26 +251,57 @@ begin
     found := False;
 
     writeln('===== SEARCH STUDENT =====');
+    writeln('1. Search by Registration Number');
+    writeln('2. Search by Student Name');
+    write('Enter choice: ');
+    readln(searchChoice);
     writeln;
-    write('Enter Registration Number: ');
-    readln(regNo);
 
-    Assign(studentFile, 'students.txt');
+    Assign(studentFile,'students.txt');
     Reset(studentFile);
 
-    while not EOF(studentFile) do
+    if searchChoice = 1 then
     begin
-        readln(studentFile, line);
+        write('Enter Registration Number: ');
+        readln(regNo);
 
-        if Pos(regNo, line) = 1 then
+        while not EOF(studentFile) do
         begin
-            writeln;
-            writeln('Student Found');
-            writeln('---------------------------');
-            writeln(line);
-            found := True;
-            Break;
+            readln(studentFile,line);
+
+            if Pos(regNo,line)=1 then
+            begin
+                writeln;
+                writeln('Student Found');
+                writeln('---------------------------');
+                writeln(line);
+                found := True;
+                Break;
+            end;
         end;
+    end
+    else if searchChoice = 2 then
+    begin
+        write('Enter Student Name: ');
+        readln(searchName);
+
+        while not EOF(studentFile) do
+        begin
+            readln(studentFile,line);
+
+            if Pos(LowerCase(searchName), LowerCase(line)) > 0 then
+            begin
+                writeln;
+                writeln('Student Found');
+                writeln('---------------------------');
+                writeln(line);
+                found := True;
+            end;
+        end;
+    end
+    else
+    begin
+        writeln('Invalid choice.');
     end;
 
     Close(studentFile);
@@ -186,7 +312,6 @@ begin
         writeln('Student not found.');
     end;
 end;
-
             4:
 begin
     found := False;
@@ -280,13 +405,24 @@ begin
     begin
         readln(studentFile, line);
 
-        if Pos(searchReg, line) = 1 then
-        begin
-            found := True;
-            writeln('Student deleted successfully!');
-        end
-        else
-            writeln(tempFile, line);
+       if Pos(searchReg, line) = 1 then
+begin
+    write('Delete this student? (Y/N): ');
+    readln(confirm);
+
+    if UpCase(confirm) = 'Y' then
+    begin
+        found := True;
+        writeln('Student deleted successfully!');
+    end
+    else
+    begin
+        writeln(tempFile, line);
+        writeln('Deletion cancelled.');
+    end;
+end
+else
+    writeln(tempFile, line);
     end;
 
     Close(studentFile);
@@ -648,20 +784,210 @@ begin
     writeln('D : ',gradeD);
     writeln('F : ',gradeF);
 end;
-
 10:
+begin
+    bestTotal := -1;
+
+    Assign(gradeFile,'grades.txt');
+    Reset(gradeFile);
+
+    while not EOF(gradeFile) do
+    begin
+        readln(gradeFile,line);
+
+        regNo := Copy(line,1,Pos('|',line)-1);
+        Delete(line,1,Pos('|',line));
+
+        Delete(line,1,Pos('|',line));
+        Delete(line,1,Pos('|',line));
+        Delete(line,1,Pos('|',line));
+
+        total := StrToInt(Copy(line,1,Pos('|',line)-1));
+        Delete(line,1,Pos('|',line));
+
+        grade := Copy(line,1,Pos('|',line)-1);
+        Delete(line,1,Pos('|',line));
+
+        remark := line;
+
+        if total > bestTotal then
+        begin
+            bestTotal := total;
+            bestReg := regNo;
+            bestGrade := grade;
+            bestRemark := remark;
+        end;
+    end;
+
+    Close(gradeFile);
+
+    if bestTotal = -1 then
+    begin
+        writeln('No grades have been recorded.');
+    end
+    else
+    begin
+        Assign(studentFile,'students.txt');
+        Reset(studentFile);
+
+        while not EOF(studentFile) do
+        begin
+            readln(studentFile,line);
+
+            if Pos(bestReg,line)=1 then
+            begin
+                Delete(line,1,Pos('|',line));
+
+                studentName := Copy(line,1,Pos('|',line)-1);
+                Delete(line,1,Pos('|',line));
+
+                course := line;
+
+                Break;
+            end;
+        end;
+
+        Close(studentFile);
+
+        writeln;
+        writeln('=========================================');
+        writeln('          BEST STUDENT REPORT');
+        writeln('=========================================');
+        writeln('Registration : ',bestReg);
+        writeln('Name         : ',studentName);
+        writeln('Course       : ',course);
+        writeln('Total Marks  : ',bestTotal);
+        writeln('Grade        : ',bestGrade);
+        writeln('Remark       : ',bestRemark);
+    end;
+end;
+11:
+begin
+    writeln;
+    writeln('==============================================');
+    writeln('              CLASS RANKING');
+    writeln('==============================================');
+    writeln;
+
+    n := 0;
+
+Assign(gradeFile,'grades.txt');
+Reset(gradeFile);
+
+while not EOF(gradeFile) do
+begin
+    readln(gradeFile,line);
+
+    Inc(n);
+
+    { Registration Number }
+    rankReg[n] := Copy(line,1,Pos('|',line)-1);
+    Delete(line,1,Pos('|',line));
+
+    { Skip CAT }
+    Delete(line,1,Pos('|',line));
+
+    { Skip Assignment }
+    Delete(line,1,Pos('|',line));
+
+    { Skip Exam }
+    Delete(line,1,Pos('|',line));
+
+    { Total Marks }
+    rankTotal[n] := StrToInt(Copy(line,1,Pos('|',line)-1));
+    Delete(line,1,Pos('|',line));
+
+    { Grade }
+    rankGrade[n] := Copy(line,1,Pos('|',line)-1);
+
+    rankName[n] := '';
+end;
+
+Close(gradeFile);
+
+Assign(studentFile,'students.txt');
+Reset(studentFile);
+
+while not EOF(studentFile) do
+begin
+    readln(studentFile,line);
+
+    regNo := Copy(line,1,Pos('|',line)-1);
+    Delete(line,1,Pos('|',line));
+
+    studentName := Copy(line,1,Pos('|',line)-1);
+
+    for i := 1 to n do
+    begin
+        if rankReg[i] = regNo then
+        begin
+            rankName[i] := studentName;
+            Break;
+        end;
+    end;
+end;
+
+Close(studentFile);
+for i := 1 to n - 1 do
+begin
+    for j := 1 to n - i do
+    begin
+        if rankTotal[j] < rankTotal[j + 1] then
+        begin
+            { Swap Total }
+            tempTotal := rankTotal[j];
+            rankTotal[j] := rankTotal[j + 1];
+            rankTotal[j + 1] := tempTotal;
+
+            { Swap Registration Number }
+            tempReg := rankReg[j];
+            rankReg[j] := rankReg[j + 1];
+            rankReg[j + 1] := tempReg;
+
+            { Swap Student Name }
+            tempName := rankName[j];
+            rankName[j] := rankName[j + 1];
+            rankName[j + 1] := tempName;
+
+            { Swap Grade }
+            tempGrade := rankGrade[j];
+            rankGrade[j] := rankGrade[j + 1];
+            rankGrade[j + 1] := tempGrade;
+        end;
+    end;
+end;
+
+writeln;
+writeln('==============================================================');
+writeln('Rank  Reg No           Student Name              Total  Grade');
+writeln('==============================================================');
+
+for i := 1 to n do
+begin
+    writeln(
+        i:3,'   ',
+        rankReg[i]:15,'   ',
+        rankName[i]:25,'   ',
+        rankTotal[i]:5,'   ',
+        rankGrade[i]
+    );
+end;
+
+end;
+
+12:
     writeln('Thank you for using the Student Management System.');
         else
             writeln('Invalid choice!');
         end;
 
-        if choice <> 10 then
+        if choice <> 12 then
         begin
             writeln;
             writeln('Press ENTER to continue...');
             readln;
         end;
 
-    until choice = 10;
+    until choice = 12;
 
 end.

@@ -14,6 +14,12 @@ var
     grade, remark: string;
     found: boolean;
     catMark, assignmentMark, examMark, total: integer;
+highest, lowest: integer;
+sum: integer;
+count: integer;
+average: real;
+
+gradeA, gradeB, gradeC, gradeD, gradeF: integer;
 begin
     repeat
 
@@ -25,7 +31,8 @@ writeln('5. Delete Student');
 writeln('6. Record Student Marks');
 writeln('7. View Grade Report');
 writeln('8. Student Transcript');
-writeln('9. Exit');
+writeln('9. Student Statistics');
+writeln('10. Exit');
         writeln;
 
         writeln('Enter your choice:');
@@ -180,14 +187,29 @@ begin
             writeln(line);
             writeln;
 
-            write('New Registration Number: ');
-            readln(regNo);
+            repeat
+    write('New Registration Number: ');
+    readln(regNo);
 
-            write('New Name: ');
-            readln(studentName);
+    if Trim(regNo) = '' then
+        writeln('Registration Number cannot be empty.');
+until Trim(regNo) <> '';
 
-            write('New Course: ');
-            readln(course);
+            repeat
+    write('New Name: ');
+    readln(studentName);
+
+    if Trim(studentName) = '' then
+        writeln('Student Name cannot be empty.');
+until Trim(studentName) <> '';
+
+           repeat
+    write('New Course: ');
+    readln(course);
+
+    if Trim(course) = '' then
+        writeln('Course cannot be empty.');
+until Trim(course) <> '';
 
             writeln(tempFile,
                 regNo,'|',
@@ -499,20 +521,102 @@ begin
         Close(gradeFile);
     end;
 end;
-
 9:
+begin
+    highest := 0;
+    lowest := 100;
+    sum := 0;
+    count := 0;
+
+    gradeA := 0;
+    gradeB := 0;
+    gradeC := 0;
+    gradeD := 0;
+    gradeF := 0;
+
+    Assign(gradeFile,'grades.txt');
+    Reset(gradeFile);
+
+    while not EOF(gradeFile) do
+    begin
+        readln(gradeFile,line);
+
+        regNo := Copy(line,1,Pos('|',line)-1);
+        Delete(line,1,Pos('|',line));
+
+        catMark := StrToInt(Copy(line,1,Pos('|',line)-1));
+        Delete(line,1,Pos('|',line));
+
+        assignmentMark := StrToInt(Copy(line,1,Pos('|',line)-1));
+        Delete(line,1,Pos('|',line));
+
+        examMark := StrToInt(Copy(line,1,Pos('|',line)-1));
+        Delete(line,1,Pos('|',line));
+
+        total := StrToInt(Copy(line,1,Pos('|',line)-1));
+        Delete(line,1,Pos('|',line));
+
+        grade := Copy(line,1,Pos('|',line)-1);
+
+        if total > highest then
+            highest := total;
+
+        if total < lowest then
+            lowest := total;
+
+        sum := sum + total;
+        count := count + 1;
+
+        if grade='A' then
+            gradeA := gradeA + 1
+        else if grade='B' then
+            gradeB := gradeB + 1
+        else if grade='C' then
+            gradeC := gradeC + 1
+        else if grade='D' then
+            gradeD := gradeD + 1
+        else
+            gradeF := gradeF + 1;
+    end;
+
+    Close(gradeFile);
+
+    if count > 0 then
+        average := sum / count
+    else
+        average := 0;
+
+    writeln;
+    writeln('==========================================');
+    writeln('         STUDENT STATISTICS');
+    writeln('==========================================');
+    writeln('Students Graded : ',count);
+    writeln('Highest Score   : ',highest);
+    writeln('Lowest Score    : ',lowest);
+    writeln('Average Score   : ',average:0:2);
+    writeln;
+    writeln('Grade Distribution');
+    writeln('--------------------------');
+    writeln('A : ',gradeA);
+    writeln('B : ',gradeB);
+    writeln('C : ',gradeC);
+    writeln('D : ',gradeD);
+    writeln('F : ',gradeF);
+end;
+
+10:
     writeln('Thank you for using the Student Management System.');
         else
             writeln('Invalid choice!');
         end;
 
-        if choice <> 9 then
+        if choice <> 10 then
         begin
             writeln;
             writeln('Press ENTER to continue...');
             readln;
         end;
 
-    until choice = 9;
+    until choice = 10;
 
 end.

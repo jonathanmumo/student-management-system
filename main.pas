@@ -298,7 +298,8 @@ begin
     if not found then
         writeln('Student not found.');
 end;
-            6:
+
+           6:
 begin
     found := False;
 
@@ -307,6 +308,7 @@ begin
     write('Enter Registration Number: ');
     readln(searchReg);
 
+    { Check student exists }
     Assign(studentFile,'students.txt');
     Reset(studentFile);
 
@@ -330,85 +332,98 @@ begin
     end
     else
     begin
-        writeln;
-        writeln('Student Found');
-        writeln(line);
-        writeln;
-
-        repeat
-    write('CAT Marks (0-30): ');
-    readln(catMark);
-
-    if (catMark < 0) or (catMark > 30) then
-        writeln('Invalid! CAT marks must be between 0 and 30.');
-until (catMark >= 0) and (catMark <= 30);
-
-        repeat
-    write('Assignment Marks (0-10): ');
-    readln(assignmentMark);
-
-    if (assignmentMark < 0) or (assignmentMark > 10) then
-        writeln('Invalid! Assignment marks must be between 0 and 10.');
-until (assignmentMark >= 0) and (assignmentMark <= 10);
-
-       repeat
-    write('Exam Marks (0-60): ');
-    readln(examMark);
-
-    if (examMark < 0) or (examMark > 60) then
-        writeln('Invalid! Exam marks must be between 0 and 60.');
-until (examMark >= 0) and (examMark <= 60);
-
-        total := catMark + assignmentMark + examMark;
-
-        if total >= 70 then
-        begin
-            grade := 'A';
-            remark := 'Excellent';
-        end
-        else if total >= 60 then
-        begin
-            grade := 'B';
-            remark := 'Very Good';
-        end
-        else if total >= 50 then
-        begin
-            grade := 'C';
-            remark := 'Good';
-        end
-        else if total >= 40 then
-        begin
-            grade := 'D';
-            remark := 'Pass';
-        end
-        else
-        begin
-            grade := 'F';
-            remark := 'Fail';
-        end;
+        { Check if grades already exist }
+        found := False;
 
         Assign(gradeFile,'grades.txt');
-        Append(gradeFile);
+        Reset(gradeFile);
 
-        writeln(
-            gradeFile,
-            searchReg,'|',
-            catMark,'|',
-            assignmentMark,'|',
-            examMark,'|',
-            total,'|',
-            grade,'|',
-            remark
-        );
+        while not EOF(gradeFile) do
+        begin
+            readln(gradeFile,line);
+
+            if Pos(searchReg,line)=1 then
+            begin
+                found := True;
+                Break;
+            end;
+        end;
 
         Close(gradeFile);
 
-        writeln;
-        writeln('Total Marks : ',total);
-        writeln('Grade       : ',grade);
-        writeln('Remark      : ',remark);
-        writeln;
-        writeln('Grade recorded successfully!');
+        if found then
+        begin
+            writeln;
+            writeln('Grades already recorded for this student!');
+        end
+        else
+        begin
+            repeat
+                write('CAT Marks (0-30): ');
+                readln(catMark);
+            until (catMark>=0) and (catMark<=30);
+
+            repeat
+                write('Assignment Marks (0-10): ');
+                readln(assignmentMark);
+            until (assignmentMark>=0) and (assignmentMark<=10);
+
+            repeat
+                write('Exam Marks (0-60): ');
+                readln(examMark);
+            until (examMark>=0) and (examMark<=60);
+
+            total := catMark + assignmentMark + examMark;
+
+            if total>=70 then
+            begin
+                grade:='A';
+                remark:='Excellent';
+            end
+            else if total>=60 then
+            begin
+                grade:='B';
+                remark:='Very Good';
+            end
+            else if total>=50 then
+            begin
+                grade:='C';
+                remark:='Good';
+            end
+            else if total>=40 then
+            begin
+                grade:='D';
+                remark:='Pass';
+            end
+            else
+            begin
+                grade:='F';
+                remark:='Fail';
+            end;
+
+            Assign(gradeFile,'grades.txt');
+            Append(gradeFile);
+
+            writeln(
+                gradeFile,
+                searchReg,'|',
+                catMark,'|',
+                assignmentMark,'|',
+                examMark,'|',
+                total,'|',
+                grade,'|',
+                remark
+            );
+
+            Close(gradeFile);
+
+            writeln;
+            writeln('Total Marks : ',total);
+            writeln('Grade       : ',grade);
+            writeln('Remark      : ',remark);
+            writeln;
+            writeln('Grade recorded successfully!');
+        end;
     end;
 end;
            7:

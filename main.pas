@@ -20,6 +20,14 @@ count: integer;
 average: real;
 
 gradeA, gradeB, gradeC, gradeD, gradeF: integer;
+function ValidRegNo(reg: string): boolean;
+begin
+    ValidRegNo :=
+        (Length(reg) = 13) and
+        (Copy(reg,1,4) = 'CCS/') and
+        (reg[10] = '/') and
+        (Pos(' ', reg) = 0);
+end;
 begin
     repeat
 
@@ -46,8 +54,16 @@ writeln('10. Exit');
             begin
                 writeln('========== ADD STUDENT ==========');
 
-                writeln('Registration Number:');
-readln(regNo);
+                
+   repeat
+    write('Registration Number: ');
+    readln(regNo);
+
+    if Trim(regNo) = '' then
+        writeln('Registration Number cannot be empty.')
+    else if not ValidRegNo(regNo) then
+        writeln('Invalid format! Example: CCS/00037/021');
+until (Trim(regNo) <> '') and ValidRegNo(regNo);
 
 found := False;
 
@@ -74,11 +90,21 @@ begin
 end
 else
 begin
-    writeln('Student Name:');
+    repeat
+    write('Student Name: ');
     readln(studentName);
 
-    writeln('Course:');
+    if Trim(studentName) = '' then
+        writeln('Student Name cannot be empty.');
+until Trim(studentName) <> '';
+
+    repeat
+    write('Course: ');
     readln(course);
+
+    if Trim(course) = '' then
+        writeln('Course cannot be empty.');
+until Trim(course) <> '';
 
     Assign(studentFile,'students.txt');
     Append(studentFile);
@@ -92,12 +118,13 @@ begin
 
     writeln;
     writeln('Student saved successfully!');
-end;
-         end;   
 
+end;
+         
+end;
             {================ VIEW STUDENTS ================}
-            2:
-            begin
+                   2:  
+ begin
                 Assign(studentFile, 'students.txt');
                 Reset(studentFile);
 
@@ -187,13 +214,16 @@ begin
             writeln(line);
             writeln;
 
-            repeat
+    
+    repeat
     write('New Registration Number: ');
     readln(regNo);
 
     if Trim(regNo) = '' then
-        writeln('Registration Number cannot be empty.');
-until Trim(regNo) <> '';
+        writeln('Registration Number cannot be empty.')
+    else if not ValidRegNo(regNo) then
+        writeln('Invalid format! Example: CCS/00037/021');
+until (Trim(regNo) <> '') and ValidRegNo(regNo);
 
             repeat
     write('New Name: ');

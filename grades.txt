@@ -6,3 +6,4 @@ ccs/00100/026|30|9|60|99|A|Excellent
 ccs/00037/023|23|10|56|89|A|Excellent
 CCS/0045/021|21|7|34|62|B|Very Good
 ccs/00045/043|19|9|39|67|B|Very Good
+ccs/0061/024|22|5|51|78|A|Excellent

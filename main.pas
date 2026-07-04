@@ -7,6 +7,9 @@ const
     MAX = 100;
 
 var
+
+
+  
     bestReg: string;
     bestGrade: string;
     bestRemark: string;
@@ -49,18 +52,40 @@ var
     tempTotal: integer;
 
 function ValidRegNo(reg: string): boolean;
+var
+  slashPos1, slashPos2: integer;
+  i, yearNum, codeCheck: integer;
+  regClean, part1, part2, part3: string;
 begin
-    ValidRegNo :=
-        (Length(reg) = 12) and
-        (Copy(reg,1,4) = 'CCS/') and
-        (reg[9] = '/') and
-        (reg[5] in ['0'..'9']) and
-        (reg[6] in ['0'..'9']) and
-        (reg[7] in ['0'..'9']) and
-        (reg[8] in ['0'..'9']) and
-        (reg[10] in ['0'..'9']) and
-        (reg[11] in ['0'..'9']) and
-        (reg[12] in ['0'..'9']);
+  ValidRegNo := False;
+
+  regClean := UpperCase(Trim(reg));
+
+  slashPos1 := Pos('/', regClean);
+  if slashPos1 = 0 then Exit;
+
+  slashPos2 := Pos('/', Copy(regClean, slashPos1 + 1, Length(regClean)));
+  if slashPos2 = 0 then Exit;
+  slashPos2 := slashPos1 + slashPos2;
+
+  part1 := Copy(regClean, 1, slashPos1 - 1);
+  part2 := Copy(regClean, slashPos1 + 1, slashPos2 - slashPos1 - 1);
+  part3 := Copy(regClean, slashPos2 + 1, Length(regClean));
+
+  if part1 <> 'CCS' then Exit;
+
+  for i := 1 to Length(part2) do
+    if not (part2[i] in ['0'..'9']) then Exit;
+
+  for i := 1 to Length(part3) do
+    if not (part3[i] in ['0'..'9']) then Exit;
+
+  Val(part3, yearNum, codeCheck);
+  if codeCheck <> 0 then Exit;
+
+  if yearNum < 21 then Exit;
+
+  ValidRegNo := True;
 end;
 begin
 repeat
